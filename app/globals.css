@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: rgb(248 250 252);
+  color: rgb(15 23 42);
+}
+
+::selection {
+  background: rgb(16 185 129);
+  color: white;
+}
+
+.glass-panel {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(226 232 240 / 0.8);
+}
+
+.noise-layer {
+  background-image:
+    radial-gradient(circle at 25% 10%, rgb(16 185 129 / 0.16), transparent 28%),
+    radial-gradient(circle at 85% 20%, rgb(14 165 233 / 0.14), transparent 26%),
+    radial-gradient(circle at 55% 90%, rgb(245 158 11 / 0.12), transparent 24%);
+}
