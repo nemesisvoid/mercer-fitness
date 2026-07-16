@@ -1,25 +1,46 @@
 import 'dotenv/config';
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@/generated/prisma/client';
-const connectionString = `${process.env.DATABASE_URL}`;
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 
 async function main() {
-  const locations = await prisma.location.createMany({
-    data: [
-      {
-        name: 'Downtown Studio',
-      },
-      {
-        name: 'Westside Studio',
-      },
-    ],
+  console.log('🌱 Seeding admin user...');
+
+  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@mercerfitness.com';
+  const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin@123456';
+  const adminName = process.env.ADMIN_NAME ?? 'Mercer Admin';
+
+  // Check if admin already exists
+  const existing = await prisma.user.findUnique({
+    where: { email: adminEmail },
   });
 
-  console.log(`Seeded ${locations.count} locations`);
+  if (existing) {
+    console.log(`⚠️  Admin user already exists: ${adminEmail}`);
+    return;
+  }
+
+  // Use Better Auth server-side API to create the user (handles password hashing)
+  const response = await auth.api.signUpEmail({
+    body: {
+      name: adminName,
+      email: adminEmail,
+      password: adminPassword,
+    },
+  });
+
+  if (!response) {
+    throw new Error('Failed to create admin user via Better Auth');
+  }
+
+  await prisma.user.update({
+    where: { email: adminEmail },
+    data: { role: 'ADMIN' },
+  });
+
+  console.log('✅ Admin user created successfully!');
+  console.log(`   Email   : ${adminEmail}`);
+  console.log(`   Password: ${adminPassword}`);
+  console.log(`   Role    : ADMIN`);
 }
 
 main()

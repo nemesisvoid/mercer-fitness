@@ -26,8 +26,8 @@ export function ScheduleExperience() {
 
   return (
     <main className="bg-slate-50">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section className="border-b border-slate-200 bg-white pt-24 lg:pt-32">
+        <div className="mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <Badge variant="emerald">Weekly schedule</Badge>

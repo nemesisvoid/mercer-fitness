@@ -9,7 +9,7 @@ import { MotionDiv, CountUp } from "@/components/landing/Motion";
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-slate-50 noise-layer">
-      <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-14 px-4 py-16 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-20">
+      <div className="mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-14 px-4 pb-16 pt-32 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:pb-20 lg:pt-36">
         <div className="relative z-10">
           <MotionDiv initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <Badge variant="emerald" className="gap-2">

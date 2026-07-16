@@ -16,7 +16,7 @@ export const createClass = async (userId:string, classData: ClassFormValues) => 
             throw new Error("Invalid class data")
         }
 
-    const newClass = await prisma.class.create({
+        await prisma.class.create({
         data: {
             name: validatedData.data.name,
             type: validatedData.data.type,
@@ -43,7 +43,7 @@ catch (error) {
 export const updateClass = async (classId:string, classData: ClassFormValues) => {
 
     try {
-        const updatedClass = await prisma.class.update({
+     await prisma.class.update({
             where: {
                 id: classId
             },
@@ -124,3 +124,16 @@ export const cancelClass = async (userId:string, classId:string) => {
         throw new Error("Failed to cancel class")
     }
 };
+
+
+export const getAllClasses = async () => {
+    try {
+        const classes = await prisma.class.findMany({
+            
+        });
+        return { success: true, data: classes };
+    } catch (error) {
+        console.error("Error fetching classes:", error);
+        return { success: false, error: "Failed to fetch classes" };
+    }
+}

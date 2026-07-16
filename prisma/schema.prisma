@@ -31,7 +31,6 @@ enum BookingStatus {
 }
 
 
-enum
 
 enum WaitListStatus {
   WAITING
@@ -44,7 +43,7 @@ enum WaitListStatus {
 model User {
   id            String    @id @default(uuid())
   email         String    @unique
-  password      String
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   name          String

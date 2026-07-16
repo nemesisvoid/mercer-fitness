@@ -30,7 +30,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { CapacityBadge } from '@/components/ui/CapacityBadge';
 import { ClassFormSheet } from '@/components/dashboard/ClassFormSheet';
-import { getAllLocations } from '@/actions/location.action';
+import { DataTable } from '@/components/table/DataTable';
+import { createColumns, type Classes } from '@/components/table/class-column';
+import { columns as bookingColumns } from '@/components/table/booking-column';
+import { createClass } from '@/actions/class-action';
 
 const nav = [
   { icon: LayoutDashboard, label: 'Overview', active: true },
@@ -40,88 +43,55 @@ const nav = [
   { icon: Settings, label: 'Settings' },
 ];
 
-export  function DashboardShell({ locations }: { locations: Location[] }) {
-
-
+export function DashboardShell({ userId, locations }: { userId:string, locations: Location[] }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState<Classes | null>(null);
 
   return (
-    <main className='min-h-screen bg-slate-50'>
-      <div className='grid lg:grid-cols-[280px_1fr]'>
-        <aside className='hidden min-h-screen border-r border-slate-200 bg-white p-5 lg:block'>
-          <div className='flex items-center gap-3 font-heading text-lg font-bold text-slate-950'>
-            <span className='flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white'>
-              <Activity className='h-5 w-5' />
-            </span>
-            Mercer Admin
-          </div>
-          <nav className='mt-8 grid gap-2'>
-            {nav.map(item => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left font-heading text-sm font-medium transition ${item.active ? 'bg-emerald-50 text-emerald-700' : 'text-slate-600 hover:bg-slate-100'}`}>
-                  <Icon className='h-5 w-5' />
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-
-        <section>
-          <header className='sticky top-0 z-20 border-b border-slate-200 bg-white/85 backdrop-blur-xl'>
-            <div className='flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8'>
-              <div className='flex items-center gap-3'>
-                <button className='flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-600 lg:hidden'>
-                  <Menu className='h-5 w-5' />
-                </button>
-                <div>
-                  <h1 className='font-heading text-xl font-bold text-slate-950'>Dashboard overview</h1>
-                  <p className='text-sm text-slate-500'>Today across all Mercer studios</p>
-                </div>
-              </div>
-              <div className='hidden flex-1 justify-center md:flex'>
-                <label className='relative w-full max-w-md'>
-                  <Search className='absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400' />
-                  <input
-                    className='h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
-                    placeholder='Search bookings, members, classes'
-                  />
-                </label>
-              </div>
-              <div className='flex items-center gap-3'>
-                <button className='relative flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-600'>
-                  <Bell className='h-5 w-5' />
-                  <span className='absolute right-2 top-2 h-2 w-2 rounded-full bg-amber-500' />
-                </button>
-                <span className='flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white'>MF</span>
-              </div>
-            </div>
-          </header>
-
-          <div className='px-4 py-8 sm:px-6 lg:px-8'>
-            <DashboardOverview />
-            <div className='mt-8 grid gap-6 xl:grid-cols-[1fr_380px]'>
-              <ManageClasses onCreate={() => setIsCreateOpen(true)} />
-              <RightRail />
-            </div>
-            <BookingManagement />
-            <WaitlistManagement />
-          </div>
-        </section>
+    <div className='flex-1 w-full'>
+      <div className='px-4 py-8 sm:px-6 lg:px-8'>
+        <DashboardOverview />
+        <div className='mt-8 grid gap-6 xl:grid-cols-[1fr_380px]'>
+          <ManageClasses
+            onCreate={() => setIsCreateOpen(true)}
+            onEdit={(cls) => setEditingClass(cls)}
+          />
+          <RightRail />
+        </div>
+        <BookingManagement />
+        <WaitlistManagement />
       </div>
+
+      {/* Create sheet */}
       <ClassFormSheet
         locations={locations}
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        onSubmit={(values) => {
-          // TODO: persist class to backend
+        onSubmit={async(values) => {
+          await createClass(userId, values)
           console.log('New class:', values);
         }}
       />
-    </main>
+
+      {/* Edit sheet — opens when a row's Edit button is clicked.
+          The `key` forces a full remount whenever a different class is selected,
+          so react-hook-form always re-initialises with the correct defaultValues. */}
+      <ClassFormSheet
+        key={editingClass?.title ?? '__edit__'}
+        locations={locations}
+        open={Boolean(editingClass)}
+        onOpenChange={(open) => { if (!open) setEditingClass(null); }}
+        defaultValues={editingClass ? {
+          name: editingClass.title,
+          instructor: editingClass.instructor,
+          capacity: editingClass.capacity,
+        } : undefined}
+        onSubmit={(values) => {
+          console.log('Updated class:', values);
+          setEditingClass(null);
+        }}
+      />
+    </div>
   );
 }
 
@@ -160,7 +130,15 @@ function DashboardOverview() {
   );
 }
 
-function ManageClasses({ onCreate }: { onCreate: () => void }) {
+function ManageClasses({
+  onCreate,
+  onEdit,
+}: {
+  onCreate: () => void;
+  onEdit: (cls: Classes) => void;
+}) {
+  const columns = createColumns({ onEdit });
+
   return (
     <Card className='overflow-hidden'>
       <div className='flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between'>
@@ -177,65 +155,8 @@ function ManageClasses({ onCreate }: { onCreate: () => void }) {
           </Button>
         </div>
       </div>
-      <div className='overflow-x-auto'>
-        <table className='w-full min-w-[760px] text-left'>
-          <thead className='bg-slate-50 text-xs uppercase tracking-wide text-slate-500'>
-            <tr>
-              <th className='px-5 py-3'>Class</th>
-              <th className='px-5 py-3'>Instructor</th>
-              <th className='px-5 py-3'>Location</th>
-              <th className='px-5 py-3'>Capacity</th>
-              <th className='px-5 py-3'>Status</th>
-              <th className='px-5 py-3'>Actions</th>
-            </tr>
-          </thead>
-          <tbody className='divide-y divide-slate-200'>
-            {classes.map(item => (
-              <tr
-                key={item.title}
-                className='hover:bg-slate-50'>
-                <td className='px-5 py-4 font-heading text-sm font-semibold text-slate-950'>{item.title}</td>
-                <td className='px-5 py-4 text-sm text-slate-600'>{item.instructor}</td>
-                <td className='px-5 py-4 text-sm text-slate-600'>{item.location}</td>
-                <td className='px-5 py-4'>
-                  <div className='w-36'>
-                    <CapacityBadge
-                      remaining={item.remaining}
-                      capacity={item.capacity}
-                    />
-                  </div>
-                </td>
-                <td className='px-5 py-4'>
-                  <Badge variant={item.remaining === 0 ? 'amber' : 'emerald'}>{item.remaining === 0 ? 'Waitlist' : 'Active'}</Badge>
-                </td>
-                <td className='px-5 py-4'>
-                  <div className='flex gap-2 text-slate-500'>
-                    <button
-                      className='rounded-lg p-2 hover:bg-slate-100'
-                      aria-label='View'>
-                      <Eye className='h-4 w-4' />
-                    </button>
-                    <button
-                      className='rounded-lg p-2 hover:bg-slate-100'
-                      aria-label='Edit'>
-                      <Edit className='h-4 w-4' />
-                    </button>
-                    <button
-                      className='rounded-lg p-2 hover:bg-slate-100'
-                      aria-label='Duplicate'>
-                      <Copy className='h-4 w-4' />
-                    </button>
-                    <button
-                      className='rounded-lg p-2 hover:bg-slate-100'
-                      aria-label='More'>
-                      <MoreHorizontal className='h-4 w-4' />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className='p-5'>
+        <DataTable columns={columns} data={classes as any} />
       </div>
     </Card>
   );
@@ -262,28 +183,7 @@ function RightRail() {
         </div>
         <p className='mt-4 text-sm text-slate-500'>Booking conversion by day, placeholder data.</p>
       </Card>
-      <Card className='p-5'>
-        <div className='flex items-center justify-between gap-4'>
-          <div>
-            <h2 className='font-heading text-xl font-semibold text-slate-950'>Publishing checklist</h2>
-            <p className='mt-1 text-sm text-slate-500'>Used by the create-class flow.</p>
-          </div>
-          <Sparkles className='h-5 w-5 text-amber-500' />
-        </div>
-        <div className='mt-5 grid gap-3'>
-          {['Class details complete', 'Capacity and waitlist set', 'Instructor assigned', 'Member notifications ready'].map((item, index) => (
-            <div
-              key={item}
-              className='flex items-center justify-between rounded-2xl bg-slate-50 p-4'>
-              <span className='font-heading text-sm font-medium text-slate-700'>{item}</span>
-              <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full ${index < 2 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-500'}`}>
-                {index < 2 ? <CheckCircle2 className='h-4 w-4' /> : index + 1}
-              </span>
-            </div>
-          ))}
-        </div>
-      </Card>
+   
     </div>
   );
 }
@@ -294,50 +194,8 @@ function BookingManagement() {
       <div className='border-b border-slate-200 p-5'>
         <h2 className='font-heading text-xl font-semibold text-slate-950'>Booking management</h2>
       </div>
-      <div className='overflow-x-auto'>
-        <table className='w-full min-w-[760px] text-left'>
-          <thead className='bg-slate-50 text-xs uppercase tracking-wide text-slate-500'>
-            <tr>
-              <th className='px-5 py-3'>Customer</th>
-              <th className='px-5 py-3'>Email</th>
-              <th className='px-5 py-3'>Class</th>
-              <th className='px-5 py-3'>Location</th>
-              <th className='px-5 py-3'>Status</th>
-              <th className='px-5 py-3'>Actions</th>
-            </tr>
-          </thead>
-          <tbody className='divide-y divide-slate-200'>
-            {bookings.map(booking => (
-              <tr
-                key={booking.email}
-                className='hover:bg-slate-50'>
-                <td className='px-5 py-4'>
-                  <span className='flex items-center gap-3'>
-                    <span className='flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white'>
-                      <User className='h-4 w-4' />
-                    </span>
-                    <span className='font-heading text-sm font-semibold text-slate-950'>{booking.customer}</span>
-                  </span>
-                </td>
-                <td className='px-5 py-4 text-sm text-slate-600'>{booking.email}</td>
-                <td className='px-5 py-4 text-sm text-slate-600'>{booking.className}</td>
-                <td className='px-5 py-4 text-sm text-slate-600'>Mercer SoHo</td>
-                <td className='px-5 py-4'>
-                  <Badge variant={booking.status === 'Cancelled' ? 'red' : booking.status === 'Waitlist' ? 'amber' : 'emerald'}>
-                    {booking.status}
-                  </Badge>
-                </td>
-                <td className='px-5 py-4'>
-                  <Button
-                    variant='ghost'
-                    className='px-3 py-2'>
-                    View
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className='p-5'>
+        <DataTable columns={bookingColumns} data={bookings} />
       </div>
     </Card>
   );
