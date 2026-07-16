@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 coverage/
+.next/
+generated/
+tsconfig.tsbuildinfo
 
 # Logs
 npm-debug.log*
@@ -53,3 +56,5 @@ pnpm-lock.yaml
 *.svgz
 *.png
 *.jpg
+
+/lib/generated/prisma

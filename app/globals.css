@@ -1,6 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "uploadthing/tw/v4";
+@source "../node_modules/@uploadthing/react/dist";
+
+/* UploadThing: Tailwind v4 requires explicit custom variants for data-ut-element selectors */
+@custom-variant ut-button (&:is([data-ut-element="button"]));
+@custom-variant ut-allowed-content (&:is([data-ut-element="allowed-content"]));
+@custom-variant ut-label (&:is([data-ut-element="label"]));
+@custom-variant ut-upload-icon (&:is([data-ut-element="upload-icon"]));
+
+@theme {
+  --font-family-heading: var(--font-montserrat);
+  --font-family-body: var(--font-open-sans);
+
+  --shadow-glow: 0 24px 80px -40px rgb(16 185 129 / 0.55);
+
+  --animate-shimmer: shimmer 1.8s infinite;
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+}
 
 html {
   scroll-behavior: smooth;

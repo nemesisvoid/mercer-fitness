@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ClassType {
+  YOGA
+  HIIT
+  PILATES
+  CYCLING
+}
+
+enum ClassStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+
+enum
+
+enum WaitListStatus {
+  WAITING
+  OFFERED
+  CONFIRMED
+  EXPIRED
+  CANCELLED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String?   @default("ADMIN")
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Class {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  capacity    Int
+  instructor  String
+  startsAt    DateTime
+  endsAt      DateTime?
+  type        ClassType
+  status      ClassStatus
+  image       String?
+  Bookings    Booking[]
+  waitLists   WaitList[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  location    Location    @relation(fields: [locationId], references: [id])
+  locationId  String
+}
+
+model Booking {
+  id      String @id @default(uuid())
+  userId  String
+  classId String
+
+  customerName  String
+  customerEmail String
+  cancelToken   String? @unique
+
+  status    BookingStatus @default(CONFIRMED)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classId])
+  @@index([userId])
+  @@index([classId])
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  city      String?
+  state     String?
+  country   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  classes Class[]
+
+  @@map("location")
+}
+
+model WaitList {
+  id      String @id @default(uuid())
+  userId  String
+  classId String
+
+  customerName  String
+  customerEmail String
+
+  position          Int
+  offerSentAt       DateTime?
+  offerExpiresAt    DateTime?
+  confirmationToken String?
+
+  status WaitListStatus @default(WAITING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classId])
+  @@index([userId])
+  @@index([classId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
