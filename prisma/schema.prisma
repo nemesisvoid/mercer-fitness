@@ -10,6 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum ClassType {
@@ -90,9 +91,8 @@ model Booking {
 
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, classId])
-  @@index([userId])
-  @@index([classId])
+  @@unique([customerEmail, classId])
+  @@index([customerEmail, classId])
 }
 
 model Location {
@@ -112,7 +112,6 @@ model Location {
 
 model WaitList {
   id      String @id @default(uuid())
-  userId  String
   classId String
 
   customerName  String
@@ -130,9 +129,8 @@ model WaitList {
 
   class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, classId])
-  @@index([userId])
-  @@index([classId])
+  @@unique([classId, customerEmail])
+  @@index([classId, customerEmail])
 }
 
 model Session {

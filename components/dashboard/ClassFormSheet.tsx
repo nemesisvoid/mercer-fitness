@@ -14,6 +14,7 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 import { CLASS_STATUSES, CLASS_TYPES, DIFFICULTIES, INSTRUCTORS, type ClassFormValues, classSchema, defaultClassValues } from '@/schemas/index';
 import { useUploadThing } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
+import { deleteImage } from '@/actions/class-action';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -103,6 +104,7 @@ export function ClassFormSheet({ open, onOpenChange, defaultValues, onSubmit, su
 
     
     let finalValues = { ...values };
+    let uploadedFileKey= null
 
     console.log('this is values', values)
 
@@ -115,6 +117,7 @@ export function ClassFormSheet({ open, onOpenChange, defaultValues, onSubmit, su
         const uploadResult = await startUpload([imageFile]);
         if (uploadResult && uploadResult[0]) {
           finalValues.image = uploadResult[0].ufsUrl;
+          uploadedFileKey = uploadResult[0].key
         }
       } catch (err) {
         alert("Image upload failed");
@@ -130,6 +133,10 @@ export function ClassFormSheet({ open, onOpenChange, defaultValues, onSubmit, su
 
     if (res && res.success === false) {
       toast.error(res.error || res.message || 'Failed to save class')
+
+      if(uploadedFileKey){
+        await deleteImage(uploadedFileKey);
+      }
     } else {
       toast.success(res?.message || 'Class saved successfully')
     }

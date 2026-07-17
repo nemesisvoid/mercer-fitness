@@ -8,13 +8,28 @@ import { redirect } from "next/navigation";
 export default async function DashboardPage() {
   const user =  await getLoggedInUser();
 
-  // if(!user) return redirect('/');
+  if(!user) return redirect('/');
   
     const [classes,locations] = await Promise.all([getAllClasses(),getAllLocations()]);
+
+    const classData = classes.data.map((cls) => ({
+      id: cls.id,
+      name: cls.name,
+      type: cls.type,
+      instructor: cls.instructor,
+      description: cls.description,
+      image: cls.image,
+      capacity: cls.capacity,
+      status: cls.status,
+      locationId: cls.locationId,
+      startsAt: cls.startsAt,
+    }));
+
+
   return (
     <>
       <AdminHeader title="Dashboard overview" description="Today across all Mercer studios" />
-      <DashboardShell userId={user.session.userId} classes={classes.data} locations={locations} />
+      <DashboardShell userId={user.session.userId} classes={classData} locations={locations} />
     </>
   );
 }

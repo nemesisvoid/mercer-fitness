@@ -43,9 +43,11 @@ const nav = [
   { icon: Settings, label: 'Settings' },
 ];
 
-export function DashboardShell({ userId, locations }: { userId:string, locations: Location[] }) {
+export function DashboardShell({ userId, locations,classData }: { userId:string, locations: Location[],classData: Classes[] }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<Classes | null>(null);
+
+
 
   return (
     <div className='flex-1 w-full'>

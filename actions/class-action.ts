@@ -129,11 +129,48 @@ export const cancelClass = async (userId:string, classId:string) => {
 export const getAllClasses = async () => {
     try {
         const classes = await prisma.class.findMany({
+            include:{
+                location:{
+                    select:{
+                        name:true,
+                        
+                    }
+                },
+                _count:{
+                    select:{Bookings:true}
+                }
+            }
             
         });
-        return { success: true, data: classes };
+
+        const classData = classes.map((cls)=>{
+            const remaining = cls.capacity - cls._count.Bookings
+            return{
+                ...cls,
+                remaining
+            }
+        })
+
+        return { success: true, data: classData };
     } catch (error) {
         console.error("Error fetching classes:", error);
         return { success: false, error: "Failed to fetch classes" };
+    }
+}
+
+
+export const deleteImage = async (fileKey: string) => {
+    try {
+        const res = await fetch('/api/uploadthing/delete', {
+            method: 'POST',
+            body: JSON.stringify({ fileKey }),
+        });
+        if (!res.ok) {
+            throw new Error('Delete failed');
+        }
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting file:", error);
+        throw new Error("Failed to delete file");
     }
 }
