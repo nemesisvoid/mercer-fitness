@@ -2,11 +2,21 @@
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
-    tsconfigPath: "tsconfig.json",
   },
   images: {
-    domains: ["utfs.io"],
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "utfs.io",
+        pathname: "/**",
+      },
+    ],
+  },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
   },
 };
 
