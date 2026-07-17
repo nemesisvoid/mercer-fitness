@@ -52,9 +52,5 @@ Desktop.ini
 package-lock.json
 pnpm-lock.yaml
 
-# Generated icons or assets
-*.svgz
-*.png
-*.jpg
-
+#prisma
 /lib/generated/prisma
