@@ -27,16 +27,16 @@ export const createClass = async (userId:string, classData: ClassFormValues) => 
             status: validatedData.data.status,
             locationId: validatedData.data.locationId,
             startsAt: validatedData.data.startsAt,
-            endsAt: validatedData.data.endsAt,
+            endsAt: validatedData.data.endsAt || undefined,
         }
     })
 
-    return {message:'class created suscessfully'}
+    return {success:true, message:'class created suscessfully'}
     
 }
 catch (error) {
     console.error("Error creating class:", error)
-    throw new Error("Failed to create class")
+    return {success:false, message:'Failed to create class'}
 }
 };
 
@@ -57,7 +57,7 @@ export const updateClass = async (classId:string, classData: ClassFormValues) =>
                 status: classData.status,
                 locationId: classData.locationId,
                 startsAt: classData.startsAt,
-                endsAt: classData.endsAt,
+                endsAt: classData.endsAt || undefined,
             }
         })
 

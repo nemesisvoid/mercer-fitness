@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { CapacityBadge } from '@/components/ui/CapacityBadge';
 import { Card } from '@/components/ui/Card';
 import { Field, FieldDescription, FieldError, FieldLabel, fieldInputClass } from '@/components/ui/Field';
-import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/Sheet';
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CLASS_STATUSES, CLASS_TYPES, DIFFICULTIES, INSTRUCTORS, type ClassFormValues, classSchema, defaultClassValues } from '@/schemas/index';
 import { useUploadThing } from '@/utils/uploadthing';
 import toast from 'react-hot-toast';
@@ -30,7 +30,7 @@ export type ClassFormSheetProps = {
    */
   defaultValues?: Partial<ClassFormValues>;
   /** Called with validated data when the user submits the form. */
-  onSubmit: (values: ClassFormValues) => void | Promise<void>;
+  onSubmit: (values: ClassFormValues) => any;
   /** Override the primary submit button label. */
   submitLabel?: string;
   /** Location records fetched from the database for the location picker. */
@@ -98,7 +98,17 @@ export function ClassFormSheet({ open, onOpenChange, defaultValues, onSubmit, su
   // const duration = durationMinutes(startsAt, endsAt);
 
   const onValidSubmit: SubmitHandler<ClassFormValues> = async values => {
+
+    try{
+
+    
     let finalValues = { ...values };
+
+    console.log('this is values', values)
+
+    const selectedDate = new Date(finalValues.startsAt)
+
+    console.log('this is selected date', selectedDate)
 
     if (imageFile) {
       try {
@@ -109,13 +119,24 @@ export function ClassFormSheet({ open, onOpenChange, defaultValues, onSubmit, su
       } catch (err) {
         alert("Image upload failed");
         return;
-      }
+      } 
     }
 
-    await onSubmit(finalValues);
+    const res = await onSubmit({ 
+      ...finalValues, 
+      startsAt: selectedDate.toISOString(),
+      endsAt: finalValues.endsAt ? new Date(finalValues.endsAt).toISOString() : undefined
+    });
 
-    toast.success('Class created successfully')
-    onOpenChange(false);
+    if (res && res.success === false) {
+      toast.error(res.error || res.message || 'Failed to save class')
+    } else {
+      toast.success(res?.message || 'Class saved successfully')
+    }
+    onOpenChange(false)}catch(err){
+      console.log('error in class creation',err)
+    toast.error('An error occurred while creating the class')
+    }
   };
 
   function handleOpenChange(nextOpen: boolean) {

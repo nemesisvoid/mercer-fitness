@@ -68,8 +68,9 @@ export function DashboardShell({ userId, locations }: { userId:string, locations
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onSubmit={async(values) => {
-          await createClass(userId, values)
+          const res = await createClass(userId, values)
           console.log('New class:', values);
+          return res;
         }}
       />
 
