@@ -1,4 +1,4 @@
-import { cancelBooking, getBooking } from "@/actions/booking";
+import { cancelBooking, getBooking } from "@/actions/booking.action";
 import { redirect } from "next/navigation";
 import {
   Calendar,
@@ -44,6 +44,7 @@ export default async function BookingPage({
   const isCancelled = status === "CANCELLED";
 
   const handleCancel = async () => {
+    "use server";
     if (!token) return;
     const result = await cancelBooking(bookingId, token);
     if (result.success) {

@@ -51,7 +51,6 @@ export const getAllBookings = async () => {
 };
 
 export const createBooking = async (
-  userId: string,
   classId: string,
   {
     customerEmail,
@@ -63,9 +62,6 @@ export const createBooking = async (
 ) => {
   try {
     const futureDate = new Date();
-
-    if (!userId) throw new Error("Unauthorized");
-
     const existingBooking = await prisma.booking.findUnique({
       where: {
         customerEmail_classId: {
@@ -92,6 +88,7 @@ export const createBooking = async (
             Bookings: true,
           },
         },
+        location: true,
       },
     });
 
@@ -116,15 +113,15 @@ export const createBooking = async (
       await sendMail({
         to: customerEmail,
         from: process.env.EMAIL_USER!,
-        subject: `Booking Confirmation: ${getClass.name}`,
+        subject: `Waitlist Confirmation: ${getClass.name}`,
         html: `
-                            <h1>Booking Confirmation</h1>
-                            <p>Thank you for booking a class with Mercer Fitness</p>
+                            <h1>Waitlist Confirmation</h1>
+                            <p>Thank you for joining the waitlist for a class with Mercer Fitness</p>
                             <p>Class: ${getClass.name}</p>
                             <p>Date: ${getClass.startsAt}</p>
                             <p>Time: ${getClass.endsAt}</p>
                             <p>Location: ${getClass.location.name}</p>
-                            <p>Please make sure to arrive early</p>
+                            <p>You will be notified when a spot opens up</p>
                         `,
       });
       return {
@@ -136,7 +133,6 @@ export const createBooking = async (
 
     const newBooking = await prisma.booking.create({
       data: {
-        userId,
         classId,
         customerName,
         customerEmail,
@@ -154,11 +150,9 @@ export const createBooking = async (
                         <p>Thank you for booking a class with Mercer Fitness</p>
                         <p>Class: ${getClass.name}</p>
                         <p>Date: ${getClass.startsAt}</p>
-                        <p>Time: ${getClass.endsAt}</p>
                         <p>Location: ${getClass.location.name}</p>
                         <p>Please make sure to arrive early</p>
                         <p>Booking reference: ${newBooking.id}</p>
-                        <p>Cancel booking </p>
                         <a href="${process.env.NEXT_PUBLIC_APP_URL}/bookings/${newBooking.id}?cancelToken=${newBooking.cancelToken}">Cancel booking</a>
                     `,
     });

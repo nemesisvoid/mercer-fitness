@@ -77,7 +77,6 @@ model Class {
 
 model Booking {
   id      String @id @default(uuid())
-  userId  String
   classId String
 
   customerName  String

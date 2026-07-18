@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Edit, TrashIcon } from 'lucide-react'
 import { CapacityBadge } from '../ui/CapacityBadge'
 import { Badge } from '../ui/Badge'
+import { format, isToday, isTomorrow } from 'date-fns'
 
 export type Classes = {
     id: string
@@ -47,15 +48,14 @@ export function createColumns({
             accessorKey: 'startsAt',
             header: 'Schedule',
             cell: ({ row }) => {
-                const date = row.original.startsAt;
-                if (!date) return <div className='text-sm text-slate-600'>—</div>;
+                const startsAt = row.original.startsAt ? new Date(row.original.startsAt) : null;
+                if (!startsAt) return <div className='text-sm text-slate-600'>—</div>;
                 
-                const formatted = new Intl.DateTimeFormat('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit',
-                }).format(new Date(date));
+                const formatted = isToday(startsAt)
+                    ? `Today, ${format(startsAt, "h:mm a")}`
+                    : isTomorrow(startsAt)
+                    ? `Tomorrow, ${format(startsAt, "h:mm a")}`
+                    : format(startsAt, "MMM d, h:mm a");
                 
                 return <div className='text-sm text-slate-600'>{formatted}</div>;
             },
