@@ -44,6 +44,23 @@ export function createColumns({
             ),
         },
         {
+            accessorKey: 'startsAt',
+            header: 'Schedule',
+            cell: ({ row }) => {
+                const date = row.original.startsAt;
+                if (!date) return <div className='text-sm text-slate-600'>—</div>;
+                
+                const formatted = new Intl.DateTimeFormat('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                }).format(new Date(date));
+                
+                return <div className='text-sm text-slate-600'>{formatted}</div>;
+            },
+        },
+        {
             accessorKey: 'location',
             header: 'Location',
             cell: ({ row }) => (

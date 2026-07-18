@@ -195,7 +195,7 @@ function ManageClasses({
             Manage classes
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Search, duplicate, edit, cancel, or inspect capacity.
+            Search, edit, cancel and delete classes.  
           </p>
         </div>
         <div className="flex gap-2">

@@ -7,9 +7,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 
 const links = [
+  { href: "/", label: "Home" },
   { href: "/schedule", label: "Schedule" },
-  { href: "/#locations", label: "Studios" },
-  { href: "/auth/login", label: "Login" }
+  { href: "/auth/login", label: "Login" },
 ];
 
 export function Navbar() {
@@ -35,8 +35,8 @@ export function Navbar() {
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="group flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
         >
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white shadow-sm transition-transform duration-300 group-hover:scale-105 group-active:scale-95">
@@ -50,14 +50,18 @@ export function Navbar() {
         {/* Desktop Links */}
         <div className="hidden items-center gap-1 md:flex bg-white/50 border border-slate-200/60 rounded-full px-2 py-1.5 backdrop-blur-sm shadow-sm">
           {links.map((link) => {
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && !link.href.startsWith('/#'));
+            const isActive =
+              pathname === link.href ||
+              (link.href !== "/" &&
+                pathname.startsWith(link.href) &&
+                !link.href.startsWith("/#"));
             return (
-              <Link 
-                key={link.href} 
-                href={link.href} 
+              <Link
+                key={link.href}
+                href={link.href}
                 className={`relative px-4 py-2 text-sm font-medium transition-colors rounded-full ${
-                  isActive 
-                    ? "text-emerald-700 bg-emerald-50/80" 
+                  isActive
+                    ? "text-emerald-700 bg-emerald-50/80"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/50"
                 }`}
               >
@@ -69,8 +73,8 @@ export function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden items-center gap-3 md:flex">
-          <Button 
-            onClick={() => router.push('/schedule')}
+          <Button
+            onClick={() => router.push("/schedule")}
             className="h-10 px-5 rounded-full shadow-sm hover:shadow-md transition-all duration-300 group"
           >
             <Calendar className="h-4 w-4 mr-1.5 opacity-80" />
@@ -94,28 +98,28 @@ export function Navbar() {
         <div className="absolute top-full left-0 w-full border-b border-slate-200 bg-white/95 px-4 py-6 shadow-xl backdrop-blur-md md:hidden animate-in slide-in-from-top-2 duration-200">
           <div className="flex flex-col gap-2">
             {links.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className="flex items-center rounded-xl px-4 py-3 font-heading text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition-colors" 
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center rounded-xl px-4 py-3 font-heading text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition-colors"
                 onClick={() => setOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
             <div className="my-2 h-px w-full bg-slate-100" />
-            <Link 
-              href="/auth" 
+            <Link
+              href="/auth"
               className="flex items-center rounded-xl px-4 py-3 font-heading text-base font-medium text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition-colors"
               onClick={() => setOpen(false)}
             >
               Log in
             </Link>
-            <Button 
+            <Button
               className="mt-2 w-full justify-center rounded-xl"
               onClick={() => {
                 setOpen(false);
-                router.push('/schedule');
+                router.push("/schedule");
               }}
             >
               <Calendar className="h-4 w-4 mr-2" />
