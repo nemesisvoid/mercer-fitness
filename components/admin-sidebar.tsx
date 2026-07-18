@@ -3,7 +3,7 @@
 import { adminSidebarLinks } from "@/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Activity, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { signOut } from "@/lib/auth-client";
 
 const sidebarVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -32,6 +33,17 @@ const itemVariants = {
 
 const AdminSidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+      },
+    });
+  };
 
   return (
     <Sidebar className="border-r-0 shadow-xl">
@@ -182,7 +194,10 @@ const AdminSidebar = () => {
             <p className="truncate text-sm font-semibold text-white">Admin User</p>
             <p className="truncate text-xs text-slate-500">admin@mercer.fit</p>
           </div>
-          <button className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 transition-all duration-200 hover:bg-white/10 hover:text-red-400">
+          <button 
+            onClick={handleLogout}
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 transition-all duration-200 hover:bg-white/10 hover:text-red-400"
+          >
             <LogOut className="h-4 w-4" />
           </button>
         </motion.div>

@@ -1,5 +1,6 @@
-import { cancelBooking, getBooking } from "@/actions/booking.action";
+import { getBooking } from "@/actions/booking.action";
 import { redirect } from "next/navigation";
+import { CancelButton } from "@/components/classes/CancelButton";
 import {
   Calendar,
   Clock,
@@ -43,15 +44,7 @@ export default async function BookingPage({
   const { class: gymClass, customerName, customerEmail, status } = bookingData;
   const isCancelled = status === "CANCELLED";
 
-  const handleCancel = async () => {
-    "use server";
-    if (!token) return;
-    const result = await cancelBooking(bookingId, token);
-    if (result.success) {
-      // Revalidate or just redirect to same page to see updated status
-      redirect(`/booking/${bookingId}?cancelToken=${token}`);
-    }
-  };
+
 
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
@@ -172,15 +165,7 @@ export default async function BookingPage({
             {/* Actions */}
             {!isCancelled && token && (
               <div className="pt-8 border-t border-white/10">
-                <form action={handleCancel}>
-                  <button
-                    type="submit"
-                    className="w-full py-4 px-6 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 font-medium transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    <XCircle className="w-5 h-5" />
-                    Cancel Reservation
-                  </button>
-                </form>
+                <CancelButton bookingId={bookingId} token={token} />
                 <p className="text-center text-xs text-zinc-500 mt-4">
                   Are you sure? This action cannot be undone and your spot will
                   be given to the next person on the waitlist.
