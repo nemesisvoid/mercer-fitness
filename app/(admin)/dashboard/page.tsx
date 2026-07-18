@@ -42,6 +42,8 @@ export default async function DashboardPage() {
         email: b.customerEmail,
         className: b.class?.name || "Unknown",
         status: b.status,
+        createdAt: b.createdAt,
+        classType: b.class?.type || "Unknown",
       }))
     : [];
 

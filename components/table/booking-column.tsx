@@ -10,6 +10,8 @@ export type Bookings = {
     email: string
     className: string
     status: string
+    createdAt?: Date
+    classType?: string
 }
 
 export const columns: ColumnDef<Bookings>[] = [

@@ -85,7 +85,7 @@ export function ScheduleClass({ classData = [] }: { classData?: any[] }) {
         setCustomerEmail("");
       } else {
         console.log(res.message);
-        toast.error("Something went wrong, try again later.");
+        toast.error(res.message || "Booking failed");
       }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong, try again later");

@@ -24,8 +24,10 @@ export type Classes = {
 /** Call this to get columns with edit/delete callbacks wired in. */
 export function createColumns({
     onEdit,
+    onDelete,
 }: {
     onEdit: (row: Classes) => void
+    onDelete: (row: Classes) => void
 }): ColumnDef<Classes>[] {
     return [
         {
@@ -108,6 +110,7 @@ export function createColumns({
                         <button
                             className='rounded-lg p-2 hover:bg-red-50 hover:text-red-500 transition-colors'
                             aria-label='Delete'
+                            onClick={() => onDelete(classData)}
                         >
                             <TrashIcon className='h-4 w-4' />
                         </button>

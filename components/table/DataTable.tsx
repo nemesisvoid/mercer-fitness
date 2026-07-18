@@ -19,7 +19,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  pageSize = 8,
+  pageSize = 5,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -103,17 +103,34 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination */}
       <div className='flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-5 py-3'>
-        {/* Row count */}
-        <p className='text-xs text-slate-400'>
-          {totalRows > 0 ? (
-            <>
-              Showing <span className='font-semibold text-slate-600'>{from}–{to}</span> of{' '}
-              <span className='font-semibold text-slate-600'>{totalRows}</span> rows
-            </>
-          ) : (
-            'No data'
-          )}
-        </p>
+        <div className='flex items-center gap-4'>
+          <p className='text-xs text-slate-400'>
+            {totalRows > 0 ? (
+              <>
+                Showing <span className='font-semibold text-slate-600'>{from}–{to}</span> of{' '}
+                <span className='font-semibold text-slate-600'>{totalRows}</span> rows
+              </>
+            ) : (
+              'No data'
+            )}
+          </p>
+          <div className='flex items-center gap-2'>
+            <span className='text-xs text-slate-400'>Rows per page</span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value))
+              }}
+              className='h-7 rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-600 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500'
+            >
+              {[5, 10, 20, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {/* Controls */}
         <div className='flex items-center gap-1'>

@@ -40,7 +40,10 @@ import {
   columns as waitlistColumns,
   type Waitlist,
 } from "@/components/table/waitlist-column";
-import { createClass, updateClass } from "@/actions/class-action";
+import { createClass, updateClass, deleteClass } from "@/actions/class-action";
+import { DialogShell } from "@/components/ui/DialogShell";
+import toast from "react-hot-toast";
+import { WeeklyBookingsChart, ClassPopularityChart } from "./AnalyticsCharts";
 
 const nav = [
   { icon: LayoutDashboard, label: "Overview", active: true },
@@ -65,18 +68,38 @@ export function DashboardShell({
 }) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<Classes | null>(null);
+  const [deletingClass, setDeletingClass] = useState<Classes | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    if (!deletingClass) return;
+    setIsDeleting(true);
+    try {
+      await deleteClass(userId, deletingClass.id);
+      toast.success("Class deleted successfully");
+      setDeletingClass(null);
+    } catch (error) {
+      toast.error("Failed to delete class");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="flex-1 w-full">
       <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <DashboardOverview />
+        <DashboardOverview classData={classData} bookings={bookings} waitlist={waitlist} />
+        <div className="mt-8">
+          <WeeklyBookingsChart bookings={bookings} />
+        </div>
         <div className="mt-8 grid gap-6 xl:grid-cols-[1fr_380px]">
           <ManageClasses
             onCreate={() => setIsCreateOpen(true)}
             onEdit={(cls) => setEditingClass(cls)}
+            onDelete={(cls) => setDeletingClass(cls)}
             classData={classData}
           />
-          <RightRail />
+          <ClassPopularityChart bookings={bookings} />
         </div>
         <BookingManagement bookings={bookings} />
         <WaitlistManagement waitlist={waitlist} />
@@ -127,21 +150,76 @@ export function DashboardShell({
           return res;
         }}
       />
+
+      {deletingClass && (
+        <DialogShell
+          onClose={() => !isDeleting && setDeletingClass(null)}
+          title="Delete Class"
+          description="Confirm deletion"
+        >
+        <div className="p-6">
+          <p className="text-sm text-slate-600 mb-6">
+            Are you sure you want to delete <span className="font-semibold text-slate-900">{deletingClass?.name}</span>? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="secondary"
+              onClick={() => setDeletingClass(null)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? "Deleting..." : "Delete Class"}
+            </Button>
+          </div>
+        </div>
+      </DialogShell>
+      )}
     </div>
   );
 }
 
-function DashboardOverview() {
+function DashboardOverview({
+  classData,
+  bookings,
+  waitlist,
+}: {
+  classData: Classes[];
+  bookings: Bookings[];
+  waitlist: Waitlist[];
+}) {
+  const upcomingClasses = classData.filter(
+    (c) => new Date(c.startsAt) > new Date() && c.status === "SCHEDULED"
+  ).length;
+
+  const todaysBookings = bookings.filter(
+    (b) =>
+      b.createdAt &&
+      new Date(b.createdAt).toDateString() === new Date().toDateString()
+  ).length;
+
+  const waitlistCount = waitlist.length;
+
+  const cancelledClasses = classData.filter(
+    (c) => c.status === "CANCELLED"
+  ).length;
+
   const cards = [
-    { icon: Calendar, label: "Upcoming classes", value: "42", badge: "+8%" },
+    { icon: Calendar, label: "Upcoming classes", value: upcomingClasses.toString(), badge: "Scheduled" },
     {
       icon: CheckCircle2,
       label: "Today's bookings",
-      value: "318",
-      badge: "+14%",
+      value: todaysBookings.toString(),
+      badge: "Today",
     },
-    { icon: Clock, label: "Waitlist count", value: "27", badge: "Live" },
-    { icon: XCircle, label: "Cancelled classes", value: "2", badge: "Low" },
+    { icon: Clock, label: "Waitlist count", value: waitlistCount.toString(), badge: "Total" },
+    { icon: XCircle, label: "Cancelled classes", value: cancelledClasses.toString(), badge: "Total" },
   ];
 
   return (
@@ -179,13 +257,15 @@ function DashboardOverview() {
 function ManageClasses({
   onCreate,
   onEdit,
+  onDelete,
   classData,
 }: {
   onCreate: () => void;
   onEdit: (cls: Classes) => void;
+  onDelete: (cls: Classes) => void;
   classData: Classes[];
 }) {
-  const columns = createColumns({ onEdit });
+  const columns = createColumns({ onEdit, onDelete });
 
   return (
     <Card className="overflow-hidden">
@@ -214,34 +294,6 @@ function ManageClasses({
   );
 }
 
-function RightRail() {
-  return (
-    <div className="space-y-6">
-      <Card className="p-5">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading text-xl font-semibold text-slate-950">
-            Mini analytics
-          </h2>
-          <BarChart3 className="h-5 w-5 text-slate-400" />
-        </div>
-        <div className="mt-6 flex h-48 items-end gap-3">
-          {[42, 68, 52, 84, 73, 96, 88].map((height, index) => (
-            <motion.div
-              key={height}
-              initial={{ height: 0 }}
-              animate={{ height: `${height}%` }}
-              transition={{ delay: index * 0.06, duration: 0.55 }}
-              className="flex-1 rounded-t-xl bg-gradient-to-t from-emerald-600 to-sky-400"
-            />
-          ))}
-        </div>
-        <p className="mt-4 text-sm text-slate-500">
-          Booking conversion by day, placeholder data.
-        </p>
-      </Card>
-    </div>
-  );
-}
 
 function BookingManagement({ bookings }: { bookings: Bookings[] }) {
   return (
