@@ -42,6 +42,9 @@ catch (error) {
 
 export const updateClass = async (classId:string, classData: ClassFormValues) => {
 
+
+    console.log('form values', classData)
+
     try {
      await prisma.class.update({
             where: {
@@ -94,6 +97,7 @@ export const deleteClass = async (userId:string, classId:string) => {
         throw new Error("Failed to delete class")
     }
 };
+
 
 export const cancelClass = async (userId:string, classId:string) => {
 
@@ -159,7 +163,7 @@ export const getAllClasses = async () => {
 }
 
 
-export const deleteImage = async (fileKey: string) => {
+export const deleteClassImage = async (fileKey: string) => {
     try {
         const res = await fetch('/api/uploadthing/delete', {
             method: 'POST',

@@ -25,6 +25,31 @@ export const getBooking = async (bookingId: string) => {
   }
 };
 
+export const getAllBookings = async () => {
+  try {
+    const bookings = await prisma.booking.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        class: {
+          include: {
+            location: true,
+            _count: {
+              select: {
+                Bookings: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return bookings;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const createBooking = async (
   userId: string,
   classId: string,
@@ -37,6 +62,8 @@ export const createBooking = async (
   },
 ) => {
   try {
+    const futureDate = new Date();
+
     if (!userId) throw new Error("Unauthorized");
 
     const existingBooking = await prisma.booking.findUnique({
@@ -74,6 +101,11 @@ export const createBooking = async (
 
     if (getClass.startsAt < new Date())
       throw new Error("Class has already started");
+
+    futureDate.setDate(futureDate.getDate() + 7);
+    if (getClass.startsAt > futureDate) {
+      throw new Error("Class is more than a week away");
+    }
 
     if (getClass._count.Bookings >= getClass.capacity) {
       const waitlist = await addToWaitlist(classId, {
@@ -157,6 +189,11 @@ export const cancelBooking = async (bookingId: string, cancelToken: string) => {
     });
 
     if (!booking) throw new Error("Booking not found");
+
+    if (booking.class.startsAt < new Date(Date.now() + 2 * 60 * 60 * 1000))
+      throw new Error(
+        "Booking cannot be cancelled less than 2 hours before the class",
+      );
 
     await prisma.booking.update({
       where: {

@@ -44,7 +44,6 @@ export default async function BookingPage({
   const isCancelled = status === "CANCELLED";
 
   const handleCancel = async () => {
-    "use server";
     if (!token) return;
     const result = await cancelBooking(bookingId, token);
     if (result.success) {

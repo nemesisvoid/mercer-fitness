@@ -2,8 +2,36 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { sendMail } from "@/utils/send-mail";
+
+export const getAllWaitListEntries = async () => {
+  try {
+    const waitList = await prisma.waitList.findMany({
+      orderBy: {
+        position: "desc",
+      },
+      include: {
+        class: {
+          include: {
+            location: true,
+            _count: {
+              select: {
+                waitLists: {
+                  where: {
+                    status: "WAITING",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    return waitList;
+  } catch (error) {
+    return error;
+  }
+};
 
 export const addToWaitlist = async (
   classId: string,

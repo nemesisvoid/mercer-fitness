@@ -6,12 +6,18 @@ import { CapacityBadge } from '../ui/CapacityBadge'
 import { Badge } from '../ui/Badge'
 
 export type Classes = {
-    title: string
+    id: string
+    name: string
     instructor: string
     location: string
     capacity: number
     remaining: number
     status?: string
+    type?: string
+    description?: string
+    locationId?: string
+    startsAt?: Date
+    image?: string
 }
 
 /** Call this to get columns with edit/delete callbacks wired in. */
@@ -22,11 +28,11 @@ export function createColumns({
 }): ColumnDef<Classes>[] {
     return [
         {
-            accessorKey: 'title',
+            accessorKey: 'name',
             header: 'Class',
             cell: ({ row }) => (
                 <div className='font-heading text-sm font-semibold text-slate-950'>
-                    {row.original.title}
+                    {row.original.name}
                 </div>
             ),
         },
