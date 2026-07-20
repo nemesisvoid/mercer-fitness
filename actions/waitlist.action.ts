@@ -4,6 +4,99 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendMail } from "@/utils/send-mail";
 
+export const getWaitlist = async (id: string, token: string) => {
+  try {
+    const waitlist = await prisma.waitList.findUnique({
+      where: {
+        id: id,
+        confirmationToken: token,
+      },
+      include: {
+        class: {
+          include: {
+            location: true,
+          },
+        },
+      },
+    });
+    return waitlist;
+  } catch (error) {
+    return error;
+  }
+};
+
+export const claimWaitlistSpot = async (id: string, token: string) => {
+  try {
+    const entry = await prisma.waitList.findUnique({
+      where: { id, confirmationToken: token },
+      include: {
+        class: {
+          include: { location: true },
+        },
+      },
+    });
+
+    if (!entry) {
+      return { success: false, message: "Invalid or expired claim link" };
+    }
+
+    if (entry.status === "CONFIRMED") {
+      return { success: false, message: "You have already claimed this spot" };
+    }
+
+    if (entry.status !== "OFFERED") {
+      return { success: false, message: "This offer is no longer available" };
+    }
+
+    if (entry.offerExpiresAt && entry.offerExpiresAt < new Date()) {
+      return { success: false, message: "This offer has expired" };
+    }
+
+    // Create a confirmed booking
+    const booking = await prisma.booking.create({
+      data: {
+        classId: entry.classId,
+        customerName: entry.customerName,
+        customerEmail: entry.customerEmail,
+        cancelToken: crypto.randomUUID(),
+        status: "CONFIRMED",
+      },
+    });
+
+    // Mark waitlist entry as confirmed
+    await prisma.waitList.update({
+      where: { id },
+      data: { status: "CONFIRMED", confirmationToken: null },
+    });
+
+    await sendMail({
+      to: entry.customerEmail,
+      from: process.env.EMAIL_USER!,
+      subject: `Booking Confirmed: ${entry.class.name}`,
+      html: `
+        <h1>You're booked!</h1>
+        <p>Hi ${entry.customerName},</p>
+        <p>Your spot for <strong>${entry.class.name}</strong> has been confirmed.</p>
+        <p>Date: ${new Date(entry.class.startsAt).toLocaleString()}</p>
+        <p>Location: ${entry.class.location?.name || "Mercer Fitness"}</p>
+        <p>Booking reference: ${booking.id}</p>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/booking/${booking.id}?cancelToken=${booking.cancelToken}">View or cancel booking</a>
+      `,
+    });
+
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/bookings");
+    revalidatePath("/dashboard");
+    revalidatePath("/waitlist");
+
+    return { success: true, message: "Spot claimed successfully" };
+  } catch (error) {
+    console.error("Error claiming waitlist spot:", error);
+    return { success: false, message: "Failed to claim spot" };
+  }
+};
+
 export const getAllWaitListEntries = async () => {
   try {
     const waitList = await prisma.waitList.findMany({

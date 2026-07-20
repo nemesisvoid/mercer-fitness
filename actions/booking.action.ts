@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { addToWaitlist, promoteNextOnWaitlist } from "./waitlist.action";
 import { sendMail } from "@/utils/send-mail";
+import { revalidatePath } from "next/cache";
 
 export const getBooking = async (bookingId: string) => {
   try {
@@ -124,6 +125,10 @@ export const createBooking = async (
                             <p>You will be notified when a spot opens up</p>
                         `,
       });
+      revalidatePath("/schedule");
+      revalidatePath("/bookings");
+      revalidatePath("/classes");
+      revalidatePath("/dashboard");
       return {
         success: true,
         message: "Class is full, you have been added to the waitlist",
@@ -153,10 +158,14 @@ export const createBooking = async (
                         <p>Location: ${getClass.location.name}</p>
                         <p>Please make sure to arrive early</p>
                         <p>Booking reference: ${newBooking.id}</p>
-                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/bookings/${newBooking.id}?cancelToken=${newBooking.cancelToken}">Cancel booking</a>
+                        <a href="${process.env.NEXT_PUBLIC_APP_URL}/booking/${newBooking.id}?cancelToken=${newBooking.cancelToken}">Cancel booking</a>
                     `,
     });
 
+    revalidatePath("/schedule");
+    revalidatePath("/dashboard");
+    revalidatePath("/bookings");
+    revalidatePath("/classes");
     return { success: true, message: "Booking confirmed", booking: newBooking };
   } catch (error: any) {
     return {
@@ -215,6 +224,10 @@ export const cancelBooking = async (bookingId: string, cancelToken: string) => {
             `,
     });
 
+    revalidatePath("/schedule");
+    revalidatePath("/dashboard");
+    revalidatePath("/bookings");
+    revalidatePath("/classes");
     return { success: true, message: "Booking cancelled" };
   } catch (error) {
     return {

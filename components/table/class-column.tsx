@@ -18,6 +18,7 @@ export type Classes = {
     description?: string
     locationId?: string
     startsAt?: Date
+    endsAt?: Date
     image?: string
 }
 

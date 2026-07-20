@@ -88,7 +88,11 @@ export function DashboardShell({
   return (
     <div className="flex-1 w-full">
       <div className="px-4 py-8 sm:px-6 lg:px-8">
-        <DashboardOverview classData={classData} bookings={bookings} waitlist={waitlist} />
+        <DashboardOverview
+          classData={classData}
+          bookings={bookings}
+          waitlist={waitlist}
+        />
         <div className="mt-8">
           <WeeklyBookingsChart bookings={bookings} />
         </div>
@@ -132,9 +136,14 @@ export function DashboardShell({
                 name: editingClass.name,
                 instructor: editingClass.instructor,
                 capacity: editingClass.capacity,
-                startsAt: editingClass.startsAt instanceof Date
-                  ? editingClass.startsAt.toISOString()
-                  : editingClass.startsAt,
+                startsAt:
+                  editingClass.startsAt instanceof Date
+                    ? editingClass.startsAt.toISOString()
+                    : editingClass.startsAt,
+                endsAt:
+                  editingClass.endsAt instanceof Date
+                    ? editingClass.endsAt.toISOString()
+                    : editingClass.endsAt,
                 description: editingClass.description,
                 type: editingClass.type,
                 locationId: editingClass.locationId,
@@ -144,7 +153,8 @@ export function DashboardShell({
             : undefined
         }
         onSubmit={async (values) => {
-          if (!editingClass) return { success: false, message: "No class selected" };
+          if (!editingClass)
+            return { success: false, message: "No class selected" };
           const res = await updateClass(editingClass.id, values);
           setEditingClass(null);
           return res;
@@ -157,29 +167,33 @@ export function DashboardShell({
           title="Delete Class"
           description="Confirm deletion"
         >
-        <div className="p-6">
-          <p className="text-sm text-slate-600 mb-6">
-            Are you sure you want to delete <span className="font-semibold text-slate-900">{deletingClass?.name}</span>? This action cannot be undone.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="secondary"
-              onClick={() => setDeletingClass(null)}
-              disabled={isDeleting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="default"
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              {isDeleting ? "Deleting..." : "Delete Class"}
-            </Button>
+          <div className="p-6">
+            <p className="text-sm text-slate-600 mb-6">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-slate-900">
+                {deletingClass?.name}
+              </span>
+              ? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="secondary"
+                onClick={() => setDeletingClass(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? "Deleting..." : "Delete Class"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogShell>
+        </DialogShell>
       )}
     </div>
   );
@@ -195,31 +209,46 @@ function DashboardOverview({
   waitlist: Waitlist[];
 }) {
   const upcomingClasses = classData.filter(
-    (c) => new Date(c.startsAt) > new Date() && c.status === "SCHEDULED"
+    (c) => new Date(c.startsAt) > new Date() && c.status === "SCHEDULED",
   ).length;
 
   const todaysBookings = bookings.filter(
     (b) =>
       b.createdAt &&
-      new Date(b.createdAt).toDateString() === new Date().toDateString()
+      new Date(b.createdAt).toDateString() === new Date().toDateString(),
   ).length;
 
   const waitlistCount = waitlist.length;
 
   const cancelledClasses = classData.filter(
-    (c) => c.status === "CANCELLED"
+    (c) => c.status === "CANCELLED",
   ).length;
 
   const cards = [
-    { icon: Calendar, label: "Upcoming classes", value: upcomingClasses.toString(), badge: "Scheduled" },
+    {
+      icon: Calendar,
+      label: "Upcoming classes",
+      value: upcomingClasses.toString(),
+      badge: "Scheduled",
+    },
     {
       icon: CheckCircle2,
       label: "Today's bookings",
       value: todaysBookings.toString(),
       badge: "Today",
     },
-    { icon: Clock, label: "Waitlist count", value: waitlistCount.toString(), badge: "Total" },
-    { icon: XCircle, label: "Cancelled classes", value: cancelledClasses.toString(), badge: "Total" },
+    {
+      icon: Clock,
+      label: "Waitlist count",
+      value: waitlistCount.toString(),
+      badge: "Total",
+    },
+    {
+      icon: XCircle,
+      label: "Cancelled classes",
+      value: cancelledClasses.toString(),
+      badge: "Total",
+    },
   ];
 
   return (
@@ -275,7 +304,7 @@ function ManageClasses({
             Manage classes
           </h2>
           <p className="mt-1 text-sm text-slate-500">
-            Search, edit, cancel and delete classes.  
+            Search, edit, cancel and delete classes.
           </p>
         </div>
         <div className="flex gap-2">
@@ -293,7 +322,6 @@ function ManageClasses({
     </Card>
   );
 }
-
 
 function BookingManagement({ bookings }: { bookings: Bookings[] }) {
   return (

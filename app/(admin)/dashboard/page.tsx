@@ -33,6 +33,7 @@ export default async function DashboardPage() {
         location: cls.location?.name || "Unknown",
         remaining: cls.remaining ?? cls.capacity,
         startsAt: cls.startsAt,
+        endsAt: cls.endsAt,
       }))
     : [];
 

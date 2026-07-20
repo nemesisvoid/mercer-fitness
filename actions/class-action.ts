@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { ClassFormValues, classSchema } from "@/schemas";
+import { sendMail } from "@/utils/send-mail";
+import { revalidatePath } from "next/cache";
 
 export const createClass = async (
   userId: string,
@@ -31,6 +33,9 @@ export const createClass = async (
       },
     });
 
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { success: true, message: "class created suscessfully" };
   } catch (error) {
     console.error("Error creating class:", error);
@@ -44,8 +49,23 @@ export const updateClass = async (
 ) => {
   console.log("form values", classData);
 
+  const startsAtDate = new Date(classData.startsAt);
+
+  if (
+    classData.status === "CANCELLED" &&
+    startsAtDate < new Date(Date.now() + 2 * 60 * 60 * 1000)
+  ) {
+    throw new Error(
+      "Booking cannot be cancelled less than 2 hours before the class",
+    );
+  } else if (classData.status === "CANCELLED" && startsAtDate < new Date()) {
+    throw new Error("Cannot cancel a class that has already started");
+  } else if (classData.status === "COMPLETED") {
+    throw new Error("Cannot update a class that has already started");
+  }
+
   try {
-    await prisma.class.update({
+    const data = await prisma.class.update({
       where: {
         id: classId,
       },
@@ -63,6 +83,31 @@ export const updateClass = async (
       },
     });
 
+    if (data.status === "CANCELLED") {
+      const bookings = await prisma.booking.findMany({
+        where: {
+          classId: classId,
+          status: "CONFIRMED",
+        },
+      });
+
+      for (const booking of bookings) {
+        await sendMail({
+          to: booking.customerEmail,
+          from: process.env.EMAIL_USER!,
+          subject: `Class Cancellation: ${data.name}`,
+          html: `
+            <h1>Class Cancellation</h1>
+            <p>Dear ${booking.customerName},</p>
+            <p>We regret to inform you that the class <strong>${data.name}</strong> scheduled for ${new Date(data.startsAt).toLocaleString()} has been cancelled.</p>
+            <p>We apologize for any inconvenience.</p>
+          `,
+        });
+      }
+    }
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { message: "class updated successfully" };
   } catch (error) {
     console.error("Error updating class:", error);
@@ -88,6 +133,9 @@ export const deleteClass = async (userId: string, classId: string) => {
       },
     });
 
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { message: "class deleted successfully" };
   } catch (error) {
     console.error("Error deleting class:", error);
@@ -116,6 +164,9 @@ export const cancelClass = async (userId: string, classId: string) => {
       },
     });
 
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { message: "class cancelled successfully" };
   } catch (error) {
     console.error("Error cancelling class:", error);
@@ -133,7 +184,13 @@ export const getAllClasses = async () => {
           },
         },
         _count: {
-          select: { Bookings: true },
+          select: {
+            Bookings: {
+              where: {
+                status: "CONFIRMED",
+              },
+            },
+          },
         },
       },
       orderBy: {
