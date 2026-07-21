@@ -230,7 +230,7 @@ export const promoteNextOnWaitlist = async (classId: string) => {
                     <p>A spot has opened up for the class <strong>${nextPerson.class.name}</strong> at ${nextPerson.class.location?.name || "Mercer Fitness"}.</p>
                     <p>You have 30 minutes to claim your spot.</p>
                     <p>Claim your spot here:</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/waitlist/claim?token=${confirmationToken}">Claim Reservation</a>
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL}/waitlist/claim/${nextPerson.id}?token=${confirmationToken}">Claim Reservation</a>
                 `,
       });
       return { success: true, message: "Promoted next person on waitlist" };
