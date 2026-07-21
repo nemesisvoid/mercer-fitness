@@ -40,8 +40,8 @@ export const classSchema = z
 
 
     image:z.string().optional().nullish(),
-    /** Prisma: Class.description (required String) */
-    description: z.string().max(100, 'Description must be 100 characters or less').optional(),
+    /** Prisma: Class.description (optional String) */
+    description: z.string().max(100, 'Description must be 100 characters or less').optional().nullable(),
 
     /** Prisma: Class.capacity */
     capacity: z.coerce.number().int('Capacity must be a whole number').min(1, 'Capacity must be at least 1').max(500, 'Capacity must be 500 or less'),
@@ -62,7 +62,7 @@ export const classSchema = z
      * Prisma: Class.endsAt (DateTime?)
      * Optional — same format as startsAt.
      */
-    endsAt: z.string().optional(),
+    endsAt: z.string().optional().nullable(),
 
     // ── UI-only fields (not persisted directly to the Class table) ──────────
 

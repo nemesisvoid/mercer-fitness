@@ -5,7 +5,7 @@ import { Edit, Eye, TrashIcon } from 'lucide-react'
 import Link from 'next/link'
 import { CapacityBadge } from '../ui/CapacityBadge'
 import { Badge } from '../ui/Badge'
-import { format, isToday, isTomorrow } from 'date-fns'
+import { format, isToday, isTomorrow, isPast, formatDistanceToNow } from 'date-fns'
 
 export type Classes = {
     id: string
@@ -58,7 +58,9 @@ export function createColumns({
                 const startsAt = row.original.startsAt ? new Date(row.original.startsAt) : null;
                 if (!startsAt) return <div className='text-sm text-slate-600'>—</div>;
                 
-                const formatted = isToday(startsAt)
+                const formatted = isPast(startsAt)
+                    ? formatDistanceToNow(startsAt, { addSuffix: true })
+                    : isToday(startsAt)
                     ? `Today, ${format(startsAt, "h:mm a")}`
                     : isTomorrow(startsAt)
                     ? `Tomorrow, ${format(startsAt, "h:mm a")}`
@@ -91,6 +93,9 @@ export function createColumns({
             header: 'Status',
             cell: ({ row }) => {
                 const item = row.original
+                if (item.status === 'CANCELLED') return <Badge variant="red">Cancelled</Badge>;
+                if (item.status === 'COMPLETED') return <Badge variant="slate">Completed</Badge>;
+                
                 return (
                     <Badge variant={item.remaining === 0 ? 'amber' : 'emerald'}>
                         {item.remaining === 0 ? 'Waitlist' : 'Active'}

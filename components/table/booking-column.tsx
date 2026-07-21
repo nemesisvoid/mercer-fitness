@@ -50,8 +50,9 @@ export const columns: ColumnDef<Bookings>[] = [
     header: 'Status',
     cell: ({ row }) => {
         const booking = row.original
+        const variant = booking.status === 'CONFIRMED' ? 'emerald' : booking.status === 'CANCELLED' ? 'red' : 'slate';
         return (
-            <Badge variant={booking.status === 'Cancelled' ? 'red' : booking.status === 'Waitlist' ? 'amber' : 'emerald'}>
+            <Badge variant={variant}>
                 {booking.status}
             </Badge>
         )

@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
-import { format, isToday, isTomorrow } from "date-fns";
+import { format, isToday, isTomorrow, isPast, formatDistanceToNow } from "date-fns";
 
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -202,11 +202,13 @@ export function ScheduleClass({ classData = [] }: { classData?: any[] }) {
               paginatedClasses.map((item, index) => {
                 const startsAt = item.startsAt ? new Date(item.startsAt) : null;
                 const formattedTime = startsAt
-                  ? isToday(startsAt)
-                    ? `Today, ${format(startsAt, "h:mm a")}`
-                    : isTomorrow(startsAt)
-                      ? `Tomorrow, ${format(startsAt, "h:mm a")}`
-                      : format(startsAt, "EEE, MMM d, h:mm a")
+                  ? isPast(startsAt)
+                    ? formatDistanceToNow(startsAt, { addSuffix: true })
+                    : isToday(startsAt)
+                      ? `Today, ${format(startsAt, "h:mm a")}`
+                      : isTomorrow(startsAt)
+                        ? `Tomorrow, ${format(startsAt, "h:mm a")}`
+                        : format(startsAt, "EEE, MMM d, h:mm a")
                   : "—";
 
                 return (

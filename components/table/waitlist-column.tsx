@@ -2,6 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Button } from "../ui/Button"
 import { EditIcon } from "lucide-react"
+import { Badge } from "../ui/Badge"
 
 
 
@@ -34,7 +35,19 @@ export const columns:ColumnDef<Waitlist>[] = [
   },
   {
     accessorKey:'status',
-    header:'Status'
+    header:'Status',
+    cell: ({ row }) => {
+      const waitlist = row.original;
+      const variant = waitlist.status === 'CONFIRMED' ? 'emerald' : 
+                      waitlist.status === 'WAITING' ? 'amber' : 
+                      waitlist.status === 'OFFERED' ? 'sky' : 
+                      waitlist.status === 'CANCELLED' ? 'red' : 'slate';
+      return (
+        <Badge variant={variant}>
+          {waitlist.status}
+        </Badge>
+      )
+    }
   },
   {
     header:'Actions',

@@ -47,21 +47,21 @@ export const updateClass = async (
   classId: string,
   classData: ClassFormValues,
 ) => {
-  console.log("form values", classData);
-
   const startsAtDate = new Date(classData.startsAt);
 
-  if (
-    classData.status === "CANCELLED" &&
-    startsAtDate < new Date(Date.now() + 2 * 60 * 60 * 1000)
-  ) {
+  const now = new Date();
+  const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+  // 1. Prevent cancellation if less than 2 hours away, or already started
+  if (classData.status === "CANCELLED" && startsAtDate < twoHoursFromNow) {
     throw new Error(
-      "Booking cannot be cancelled less than 2 hours before the class",
+      "Class cannot be cancelled less than 2 hours before it starts",
     );
-  } else if (classData.status === "CANCELLED" && startsAtDate < new Date()) {
-    throw new Error("Cannot cancel a class that has already started");
-  } else if (classData.status === "COMPLETED") {
-    throw new Error("Cannot update a class that has already started");
+  }
+
+  // 2. Prevent completion if the class is still in the future
+  if (classData.status === "COMPLETED" && startsAtDate > now) {
+    throw new Error("Class cannot be marked as completed before it starts");
   }
 
   try {
@@ -108,10 +108,10 @@ export const updateClass = async (
     revalidatePath("/schedule");
     revalidatePath("/classes");
     revalidatePath("/dashboard");
-    return { message: "class updated successfully" };
+    return { success: true, message: "class updated successfully" };
   } catch (error) {
     console.error("Error updating class:", error);
-    throw new Error("Failed to update class");
+    return { success: false, message: "Failed to update class" };
   }
 };
 
@@ -212,7 +212,6 @@ export const getAllClasses = async () => {
     return { success: false, error: "Failed to fetch classes" };
   }
 };
-
 
 export const getClassById = async (classId: string) => {
   try {

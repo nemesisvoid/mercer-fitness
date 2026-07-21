@@ -180,10 +180,10 @@ export function ClassFormSheet({
       });
 
       if (res && res.success === false) {
-        toast.error(res.error || res.message || "Failed to save class");
+        toast.error(res.message || "Failed to save class");
 
         if (uploadedFileKey) {
-          await deleteImage(uploadedFileKey);
+          await deleteClassImage(uploadedFileKey);
         }
       } else {
         toast.success(res?.message || "Class saved successfully");
@@ -563,7 +563,10 @@ export function ClassFormSheet({
                     control={control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor={field.name} className="relative flex items-center">
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="relative flex items-center"
+                        >
                           <span>Capacity</span>
                           {capacity > 0 && (
                             <div className="absolute right-0 top-1/2 -translate-y-1/2 scale-[0.85] origin-right opacity-80 pointer-events-none">
