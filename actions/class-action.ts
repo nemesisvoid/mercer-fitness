@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { ClassFormValues, classSchema } from "@/schemas";
 import { sendMail } from "@/utils/send-mail";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 
 export const createClass = async (
   userId: string,
@@ -33,9 +33,9 @@ export const createClass = async (
       },
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/classes");
-    revalidatePath("/dashboard");
+    // revalidatePath("/schedule");
+    // revalidatePath("/classes");
+    // revalidatePath("/dashboard");
     return { success: true, message: "class created suscessfully" };
   } catch (error) {
     console.error("Error creating class:", error);
@@ -105,9 +105,9 @@ export const updateClass = async (
         });
       }
     }
-    revalidatePath("/schedule");
-    revalidatePath("/classes");
-    revalidatePath("/dashboard");
+    // revalidatePath("/schedule");
+    // revalidatePath("/classes");
+    // revalidatePath("/dashboard");
     return { success: true, message: "class updated successfully" };
   } catch (error) {
     console.error("Error updating class:", error);
@@ -133,9 +133,9 @@ export const deleteClass = async (userId: string, classId: string) => {
       },
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/classes");
-    revalidatePath("/dashboard");
+    // revalidatePath("/schedule");
+    // revalidatePath("/classes");
+    // revalidatePath("/dashboard");
     return { message: "class deleted successfully" };
   } catch (error) {
     console.error("Error deleting class:", error);
@@ -164,9 +164,9 @@ export const cancelClass = async (userId: string, classId: string) => {
       },
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/classes");
-    revalidatePath("/dashboard");
+    // revalidatePath("/schedule");
+    // revalidatePath("/classes");
+    // revalidatePath("/dashboard");
     return { message: "class cancelled successfully" };
   } catch (error) {
     console.error("Error cancelling class:", error);
@@ -190,6 +190,11 @@ export const getAllClasses = async () => {
                 status: "CONFIRMED",
               },
             },
+            waitLists: {
+              where: {
+                status: { in: ["WAITING", "OFFERED"] },
+              },
+            },
           },
         },
       },
@@ -200,9 +205,11 @@ export const getAllClasses = async () => {
 
     const classData = classes.map((cls) => {
       const remaining = cls.capacity - cls._count.Bookings;
+      const activeWaitlistCount = cls._count.waitLists;
       return {
         ...cls,
         remaining,
+        activeWaitlistCount,
       };
     });
 

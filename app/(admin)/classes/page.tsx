@@ -1,5 +1,7 @@
 import AdminHeader from "@/components/admin-header";
 
+export const dynamic = "force-dynamic";
+
 const AdminClassesPage = () => {
   return (
     <>

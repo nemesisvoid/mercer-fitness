@@ -123,6 +123,8 @@ function StatCard({
 }
 
 /* ─── page ─────────────────────────────────────────────────── */
+export const dynamic = "force-dynamic";
+
 const AdminClassDetailsPage = async ({
   params,
 }: {

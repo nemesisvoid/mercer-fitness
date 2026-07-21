@@ -5,6 +5,8 @@ import { Footer } from "@/components/shared/Footer";
 import { Navbar } from "@/components/shared/Navbar";
 import { getAllClasses } from "@/actions/class-action";
 
+export const dynamic = "force-dynamic";
+
 export default async function SchedulePage() {
   const classes = await getAllClasses();
   const classData = classes?.data
@@ -20,6 +22,7 @@ export default async function SchedulePage() {
         locationId: cls.locationId,
         location: cls.location?.name || "Unknown",
         remaining: cls.remaining ?? cls.capacity,
+        activeWaitlistCount: cls.activeWaitlistCount ?? 0,
         startsAt: cls.startsAt,
       }))
     : [];

@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { getAllBookings } from "@/actions/booking.action";
 import { getAllWaitListEntries } from "@/actions/waitlist.action";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const user = await getLoggedInUser();
 

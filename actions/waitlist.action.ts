@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 import { sendMail } from "@/utils/send-mail";
 
 export const getWaitlist = async (id: string, token: string) => {
@@ -84,11 +84,11 @@ export const claimWaitlistSpot = async (id: string, token: string) => {
       `,
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/classes");
-    revalidatePath("/bookings");
-    revalidatePath("/dashboard");
-    revalidatePath("/waitlist");
+    // revalidatePath("/schedule");
+    // revalidatePath("/classes");
+    // revalidatePath("/bookings");
+    // revalidatePath("/dashboard");
+    // revalidatePath("/waitlist");
 
     return { success: true, message: "Spot claimed successfully" };
   } catch (error) {

@@ -265,21 +265,52 @@ export function ScheduleClass({ classData = [] }: { classData?: any[] }) {
                           <CapacityBadge
                             remaining={item.remaining}
                             capacity={item.capacity}
+                            activeWaitlistCount={item.activeWaitlistCount ?? 0}
                           />
                         </div>
                       </div>
                       <div className="flex flex-col gap-2 md:w-36">
-                        <Button
-                          onClick={() => {
-                            setSelectedClass(item);
-                            setModal("booking");
-                          }}
-                          variant={
-                            item.remaining === 0 ? "secondary" : "primary"
+                        {(() => {
+                          const isQueued = item.remaining > 0 && (item.activeWaitlistCount ?? 0) > 0;
+                          const isFull = item.remaining === 0;
+                          if (isFull) {
+                            return (
+                              <Button
+                                onClick={() => {
+                                  setSelectedClass(item);
+                                  setModal("booking");
+                                }}
+                                variant="secondary"
+                              >
+                                Join Waitlist
+                              </Button>
+                            );
                           }
-                        >
-                          {item.remaining === 0 ? "Join Waitlist" : "Book"}
-                        </Button>
+                          if (isQueued) {
+                            return (
+                              <button
+                                onClick={() => {
+                                  setSelectedClass(item);
+                                  setModal("booking");
+                                }}
+                                className="inline-flex items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                              >
+                                Join Queue
+                              </button>
+                            );
+                          }
+                          return (
+                            <Button
+                              onClick={() => {
+                                setSelectedClass(item);
+                                setModal("booking");
+                              }}
+                              variant="primary"
+                            >
+                              Book
+                            </Button>
+                          );
+                        })()}
                         <Button variant="ghost">Details</Button>
                       </div>
                     </div>

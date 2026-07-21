@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { addToWaitlist, promoteNextOnWaitlist } from "./waitlist.action";
 import { sendMail } from "@/utils/send-mail";
-import { revalidatePath } from "next/cache";
+// import { revalidatePath } from "next/cache";
 
 export const getBooking = async (bookingId: string) => {
   try {
@@ -86,7 +86,12 @@ export const createBooking = async (
       include: {
         _count: {
           select: {
-            Bookings: true,
+            Bookings: {
+              where: { status: "CONFIRMED" },
+            },
+            waitLists: {
+              where: { status: { in: ["WAITING", "OFFERED"] } },
+            },
           },
         },
         location: true,
@@ -105,11 +110,18 @@ export const createBooking = async (
       throw new Error("Class is more than a week away");
     }
 
-    if (getClass._count.Bookings >= getClass.capacity) {
+    const isFull = getClass._count.Bookings >= getClass.capacity;
+    const hasActiveWaitlist = getClass._count.waitLists > 0;
+
+    if (isFull || hasActiveWaitlist) {
       const waitlist = await addToWaitlist(classId, {
         customerName,
         customerEmail,
       });
+
+      const message = isFull
+        ? "Class is full, you have been added to the waitlist"
+        : "A spot is currently being offered to someone ahead of you. You've been added to the queue.";
 
       await sendMail({
         to: customerEmail,
@@ -125,13 +137,13 @@ export const createBooking = async (
                             <p>You will be notified when a spot opens up</p>
                         `,
       });
-      revalidatePath("/schedule");
-      revalidatePath("/bookings");
-      revalidatePath("/classes");
-      revalidatePath("/dashboard");
+      // revalidatePath("/schedule");
+      // revalidatePath("/bookings");
+      // revalidatePath("/classes");
+      // revalidatePath("/dashboard");
       return {
         success: true,
-        message: "Class is full, you have been added to the waitlist",
+        message,
         waitlist,
       };
     }
@@ -162,10 +174,10 @@ export const createBooking = async (
                     `,
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/dashboard");
-    revalidatePath("/bookings");
-    revalidatePath("/classes");
+    // revalidatePath("/schedule");
+    // revalidatePath("/dashboard");
+    // revalidatePath("/bookings");
+    // revalidatePath("/classes");
     return { success: true, message: "Booking confirmed", booking: newBooking };
   } catch (error: any) {
     return {
@@ -224,10 +236,10 @@ export const cancelBooking = async (bookingId: string, cancelToken: string) => {
             `,
     });
 
-    revalidatePath("/schedule");
-    revalidatePath("/dashboard");
-    revalidatePath("/bookings");
-    revalidatePath("/classes");
+    // revalidatePath("/schedule");
+    // revalidatePath("/dashboard");
+    // revalidatePath("/bookings");
+    // revalidatePath("/classes");
     return { success: true, message: "Booking cancelled" };
   } catch (error) {
     return {
