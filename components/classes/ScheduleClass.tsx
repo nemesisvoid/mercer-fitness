@@ -56,8 +56,10 @@ export function ScheduleClass({ classData = [] }: { classData?: any[] }) {
       locationFilter === "All locations" || cls.location === locationFilter;
     const matchesType =
       typeFilter === "All class types" || cls.type === typeFilter;
+    
+    const isUpcoming = cls.startsAt && !isPast(new Date(cls.startsAt));
 
-    return matchesSearch && matchesLocation && matchesType;
+    return matchesSearch && matchesLocation && matchesType && isUpcoming;
   });
 
   const totalPages = Math.ceil(filteredClasses.length / ITEMS_PER_PAGE);
