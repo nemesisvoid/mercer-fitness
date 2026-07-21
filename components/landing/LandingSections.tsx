@@ -69,13 +69,13 @@ export function Benefits() {
                 border: "1px solid rgba(52,211,153,0.25)",
               }}
             >
-              Why choose Mercer
+              The Mercer Experience
             </span>
             <h2
               className="font-heading text-4xl font-bold leading-tight tracking-tight sm:text-5xl"
               style={{ color: "#f0fdf8" }}
             >
-              A calmer way to{" "}
+              Designed to elevate{" "}
               <span
                 style={{
                   background: "linear-gradient(90deg, #34d399, #6ee7b7)",
@@ -83,11 +83,11 @@ export function Benefits() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                keep classes full.
+                your daily routine.
               </span>
             </h2>
             <p className="mt-5 text-lg leading-relaxed" style={{ color: "#6b7f76" }}>
-              A polished booking experience for members, coaches, and studio operators — designed around clarity and momentum.
+              Instant booking, world-class coaching, and a welcoming community built to keep you motivated every step of the way.
             </p>
           </div>
         </Reveal>
