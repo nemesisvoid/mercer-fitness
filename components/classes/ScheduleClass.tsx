@@ -81,7 +81,7 @@ export function ScheduleClass({ classData = [] }: { classData?: any[] }) {
       });
 
       if (res.success) {
-        toast.success("Booking confirmed");
+        toast.success(res.message || "Booking confirmed");
         setModal(null);
         setCustomerName("");
         setCustomerEmail("");

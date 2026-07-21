@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { ClassFormValues, classSchema } from "@/schemas";
 import { sendMail } from "@/utils/send-mail";
-// import { revalidatePath } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 export const createClass = async (
   userId: string,
@@ -33,9 +33,9 @@ export const createClass = async (
       },
     });
 
-    // revalidatePath("/schedule");
-    // revalidatePath("/classes");
-    // revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { success: true, message: "class created suscessfully" };
   } catch (error) {
     console.error("Error creating class:", error);
@@ -54,14 +54,18 @@ export const updateClass = async (
 
   // 1. Prevent cancellation if less than 2 hours away, or already started
   if (classData.status === "CANCELLED" && startsAtDate < twoHoursFromNow) {
-    throw new Error(
-      "Class cannot be cancelled less than 2 hours before it starts",
-    );
+    return {
+      success: false,
+      message: "Class cannot be cancelled less than 2 hours before it starts",
+    };
   }
 
   // 2. Prevent completion if the class is still in the future
   if (classData.status === "COMPLETED" && startsAtDate > now) {
-    throw new Error("Class cannot be marked as completed before it starts");
+    return {
+      success: false,
+      message: "Class cannot be marked as completed before it starts",
+    };
   }
 
   try {
@@ -105,9 +109,9 @@ export const updateClass = async (
         });
       }
     }
-    // revalidatePath("/schedule");
-    // revalidatePath("/classes");
-    // revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { success: true, message: "class updated successfully" };
   } catch (error) {
     console.error("Error updating class:", error);
@@ -133,9 +137,9 @@ export const deleteClass = async (userId: string, classId: string) => {
       },
     });
 
-    // revalidatePath("/schedule");
-    // revalidatePath("/classes");
-    // revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { message: "class deleted successfully" };
   } catch (error) {
     console.error("Error deleting class:", error);
@@ -164,9 +168,9 @@ export const cancelClass = async (userId: string, classId: string) => {
       },
     });
 
-    // revalidatePath("/schedule");
-    // revalidatePath("/classes");
-    // revalidatePath("/dashboard");
+    revalidatePath("/schedule");
+    revalidatePath("/classes");
+    revalidatePath("/dashboard");
     return { message: "class cancelled successfully" };
   } catch (error) {
     console.error("Error cancelling class:", error);
