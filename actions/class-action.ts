@@ -213,6 +213,44 @@ export const getAllClasses = async () => {
   }
 };
 
+
+export const getClassById = async (classId: string) => {
+  try {
+    const cls = await prisma.class.findUnique({
+      where: {
+        id: classId,
+      },
+      include: {
+        location: true,
+        Bookings: {
+          orderBy: { createdAt: "desc" },
+        },
+        waitLists: {
+          orderBy: { position: "asc" },
+        },
+        _count: {
+          select: {
+            Bookings: {
+              where: { status: "CONFIRMED" },
+            },
+            waitLists: {
+              where: { status: { in: ["WAITING", "OFFERED"] } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!cls) return { success: false, error: "Class not found" };
+
+    const remaining = cls.capacity - cls._count.Bookings;
+    return { success: true, data: { ...cls, remaining } };
+  } catch (error) {
+    console.error("Error fetching class:", error);
+    return { success: false, error: "Failed to fetch class" };
+  }
+};
+
 export const deleteClassImage = async (fileKey: string) => {
   try {
     const res = await fetch("/api/uploadthing/delete", {

@@ -1,4 +1,5 @@
 import { Activity, Instagram, Mail, MapPin } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -6,8 +7,8 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
         <div>
           <div className="flex items-center gap-3 font-heading text-lg font-bold">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500">
-              <Activity className="h-5 w-5" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white overflow-hidden">
+              <Image src="/logo.png" alt="Mercer Fitness Logo" width={40} height={40} className="object-cover" />
             </span>
             Mercer Fitness
           </div>

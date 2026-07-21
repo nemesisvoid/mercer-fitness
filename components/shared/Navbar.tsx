@@ -2,6 +2,7 @@
 
 import { Activity, Calendar, Menu, X, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
@@ -39,8 +40,8 @@ export function Navbar() {
           href="/"
           className="group flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white shadow-sm transition-transform duration-300 group-hover:scale-105 group-active:scale-95">
-            <Activity className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm transition-transform duration-300 group-hover:scale-105 group-active:scale-95 overflow-hidden">
+            <Image src="/logo.png" alt="Mercer Fitness Logo" width={40} height={40} className="object-cover" />
           </div>
           <span className="font-heading text-lg font-bold tracking-tight text-slate-900">
             Mercer<span className="text-emerald-600">Fitness</span>

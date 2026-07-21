@@ -1,7 +1,8 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import { Edit, TrashIcon } from 'lucide-react'
+import { Edit, Eye, TrashIcon } from 'lucide-react'
+import Link from 'next/link'
 import { CapacityBadge } from '../ui/CapacityBadge'
 import { Badge } from '../ui/Badge'
 import { format, isToday, isTomorrow } from 'date-fns'
@@ -35,9 +36,12 @@ export function createColumns({
             accessorKey: 'name',
             header: 'Class',
             cell: ({ row }) => (
-                <div className='font-heading text-sm font-semibold text-slate-950'>
+                <Link
+                    href={`/classes/${row.original.id}`}
+                    className='font-heading text-sm font-semibold text-slate-950 hover:text-emerald-600 transition-colors'
+                >
                     {row.original.name}
-                </div>
+                </Link>
             ),
         },
         {
@@ -101,21 +105,28 @@ export function createColumns({
                 const classData = row.original
                 return (
                     <div className='flex gap-2 text-slate-500'>
-                        <button
-                            className='rounded-lg p-2 hover:bg-slate-100 hover:text-slate-800 transition-colors'
-                            aria-label='Edit'
-                            onClick={() => onEdit(classData)}
-                        >
-                            <Edit className='h-4 w-4' />
-                        </button>
-                        <button
-                            className='rounded-lg p-2 hover:bg-red-50 hover:text-red-500 transition-colors'
-                            aria-label='Delete'
-                            onClick={() => onDelete(classData)}
-                        >
-                            <TrashIcon className='h-4 w-4' />
-                        </button>
-                    </div>
+                    <Link
+                        href={`/classes/${classData.id}`}
+                        className='rounded-lg p-2 hover:bg-emerald-50 hover:text-emerald-600 transition-colors'
+                        aria-label='View details'
+                    >
+                        <Eye className='h-4 w-4' />
+                    </Link>
+                    <button
+                        className='rounded-lg p-2 hover:bg-slate-100 hover:text-slate-800 transition-colors'
+                        aria-label='Edit'
+                        onClick={() => onEdit(classData)}
+                    >
+                        <Edit className='h-4 w-4' />
+                    </button>
+                    <button
+                        className='rounded-lg p-2 hover:bg-red-50 hover:text-red-500 transition-colors'
+                        aria-label='Delete'
+                        onClick={() => onDelete(classData)}
+                    >
+                        <TrashIcon className='h-4 w-4' />
+                    </button>
+                </div>
                 )
             },
         },

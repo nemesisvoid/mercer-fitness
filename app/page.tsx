@@ -9,11 +9,11 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <StatsBand />
+        {/* <StatsBand /> */}
         <Benefits />
-        <FeaturedClasses />
+        {/* <FeaturedClasses /> */}
         <HowItWorks />
-        <Locations />
+        {/* <Locations /> */}
         <Testimonials />
         <FAQ />
         <FinalCTA />

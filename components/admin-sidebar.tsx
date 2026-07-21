@@ -3,6 +3,7 @@
 import { adminSidebarLinks } from "@/constants";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Sidebar,
@@ -55,8 +56,8 @@ const AdminSidebar = () => {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="flex items-center gap-3"
         >
-          <span className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-900/40">
-            <Activity className="h-5 w-5 text-white" />
+          <span className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-white shadow-lg shadow-emerald-900/40 overflow-hidden">
+            <Image src="/logo.png" alt="Mercer Fitness Logo" width={40} height={40} className="object-cover" />
             <span className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/20" />
           </span>
           <div>
@@ -84,7 +85,9 @@ const AdminSidebar = () => {
               className="flex flex-col gap-1"
             >
               {adminSidebarLinks.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(item.href + "/");
                 return (
                   <motion.div key={item.title} variants={itemVariants}>
                     <SidebarMenuItem>
@@ -94,7 +97,7 @@ const AdminSidebar = () => {
                           "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                           isActive
                             ? "bg-emerald-500/15 text-emerald-400"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                            : "text-slate-400 hover:bg-white/5 hover:text-white",
                         )}
                       >
                         {/* Active indicator bar */}
@@ -102,7 +105,11 @@ const AdminSidebar = () => {
                           <motion.span
                             layoutId="activeIndicator"
                             className="absolute inset-0 rounded-xl bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/20"
-                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 35,
+                            }}
                           />
                         )}
 
@@ -112,7 +119,7 @@ const AdminSidebar = () => {
                             "relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200",
                             isActive
                               ? "bg-emerald-500/20 text-emerald-400"
-                              : "bg-white/5 text-slate-500 group-hover:bg-white/10 group-hover:text-white"
+                              : "bg-white/5 text-slate-500 group-hover:bg-white/10 group-hover:text-white",
                           )}
                         >
                           <item.icon className="h-4 w-4" />
@@ -139,10 +146,10 @@ const AdminSidebar = () => {
         </SidebarGroup>
 
         {/* Divider */}
-        <div className="mx-3 my-4 border-t border-white/[0.06]" />
+        {/* <div className="mx-3 my-4 border-t border-white/[0.06]" /> */}
 
         {/* Secondary Links */}
-        <SidebarGroup>
+        {/* <SidebarGroup>
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">
             System
           </p>
@@ -153,30 +160,32 @@ const AdminSidebar = () => {
               transition={{ delay: 0.4 }}
               className="flex flex-col gap-1"
             >
-              {[{ title: "Settings", href: "/settings", icon: Settings }].map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                        isActive
-                          ? "bg-emerald-500/15 text-emerald-400"
-                          : "text-slate-400 hover:bg-white/5 hover:text-white"
-                      )}
-                    >
-                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-slate-500 transition-all duration-200 group-hover:bg-white/10 group-hover:text-white">
-                        <item.icon className="h-4 w-4" />
-                      </span>
-                      {item.title}
-                    </Link>
-                  </SidebarMenuItem>
-                );
-              })}
+              {[{ title: "Settings", href: "/settings", icon: Settings }].map(
+                (item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                          isActive
+                            ? "bg-emerald-500/15 text-emerald-400"
+                            : "text-slate-400 hover:bg-white/5 hover:text-white",
+                        )}
+                      >
+                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white/5 text-slate-500 transition-all duration-200 group-hover:bg-white/10 group-hover:text-white">
+                          <item.icon className="h-4 w-4" />
+                        </span>
+                        {item.title}
+                      </Link>
+                    </SidebarMenuItem>
+                  );
+                },
+              )}
             </motion.div>
           </SidebarMenu>
-        </SidebarGroup>
+        </SidebarGroup> */}
       </SidebarContent>
 
       {/* Footer */}
@@ -191,10 +200,12 @@ const AdminSidebar = () => {
             MF
           </span>
           <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-semibold text-white">Admin User</p>
+            <p className="truncate text-sm font-semibold text-white">
+              Admin User
+            </p>
             <p className="truncate text-xs text-slate-500">admin@mercer.fit</p>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-slate-500 transition-all duration-200 hover:bg-white/10 hover:text-red-400"
           >
